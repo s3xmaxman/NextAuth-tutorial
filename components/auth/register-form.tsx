@@ -10,33 +10,34 @@ import {
      FormLabel,
      FormMessage,  
 } from "@/components/ui/form";
-import { LoginSchema } from "@/schemas";
+import { RegisterSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
-import { Login } from "@/actions/login";
+import { register } from "@/actions/register";
 import { useTransition, useState } from "react";
 
 
-export const LoginForm = () => {
+export const RegisterForm = () => {
      const [error, setError] = useState<string | undefined>("")
      const [success, setSuccess] = useState<string | undefined>("")
      const [isPending, startTransition] = useTransition();
      
 
-     const form = useForm<z.infer<typeof LoginSchema>>({
-          resolver: zodResolver(LoginSchema),
+     const form = useForm<z.infer<typeof RegisterSchema>>({
+          resolver: zodResolver(RegisterSchema),
           defaultValues: {
                email: "",
                password: "",
+               name: "",
           }
      })
 
-     const onSubmit = (value: z.infer<typeof LoginSchema>) => {
+     const onSubmit = (value: z.infer<typeof RegisterSchema>) => {
           startTransition(() => {
-               Login(value)
+               register(value)
                .then((data) => {
                     setError(data.error)
                     setSuccess(data.success)
@@ -47,9 +48,9 @@ export const LoginForm = () => {
 
     return (
        <CardWrapper
-            headerLabel="おかえりなさい！"
-            backButtonLabel="新規登録はこちらから"
-            backButtonHref="/auth/register"
+            headerLabel="新規登録！"
+            backButtonLabel="ログインはこちらから"
+            backButtonHref="/auth/login"
             showSocial
        >
             <Form {...form}>
@@ -90,6 +91,26 @@ export const LoginForm = () => {
                                                   disabled={isPending}
                                                   placeholder="**********"
                                                   type="password" 
+                                             />
+                                        </FormControl>
+                                        <FormMessage />
+                                   </FormItem>     
+                              )}
+                         >
+
+                         </FormField>
+                         <FormField
+                              control={form.control}
+                              name="name"
+                              render={({ field }) => (
+                                   <FormItem>
+                                        <FormLabel>Name</FormLabel>
+                                        <FormControl>
+                                             <Input
+                                                  {...field}
+                                                  disabled={isPending}
+                                                  placeholder="s3xmaxman"
+                                                  type="text" 
                                              />
                                         </FormControl>
                                         <FormMessage />
