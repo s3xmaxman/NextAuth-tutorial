@@ -123,10 +123,11 @@ export const RegisterForm = () => {
                     <FormError message={error} />
                     <FormSuccess message={success} />
                     <Button
+                         disabled={isPending}
                          type="submit"
                          className="w-full"
                     >
-                         ログイン
+                         登録
                     </Button>
                </form>
             </Form>
