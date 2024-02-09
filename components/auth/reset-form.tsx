@@ -10,7 +10,7 @@ import {
      FormLabel,
      FormMessage,  
 } from "@/components/ui/form";
-import { LoginSchema } from "@/schemas";
+import { ResetSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,29 +18,26 @@ import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
 import { Login } from "@/actions/login";
 import { useTransition, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { reset } from "@/actions/reset";
 
 
-export const LoginForm = () => {
-     const searchParams = useSearchParams();
-     const urlError = searchParams.get("error") === "OAuthAccountNotLinked" ? "別のプロバイダーで使用しているメールアドレスです" :""
+
+export const ResetForm = () => {
      const [error, setError] = useState<string | undefined>("")
      const [success, setSuccess] = useState<string | undefined>("")
      const [isPending, startTransition] = useTransition();
      
 
-     const form = useForm<z.infer<typeof LoginSchema>>({
-          resolver: zodResolver(LoginSchema),
+     const form = useForm<z.infer<typeof ResetSchema>>({
+          resolver: zodResolver(ResetSchema),
           defaultValues: {
                email: "",
-               password: "",
           }
      })
 
-     const onSubmit = (value: z.infer<typeof LoginSchema>) => {
+     const onSubmit = (value: z.infer<typeof ResetSchema>) => {
           startTransition(() => {
-               Login(value)
+               reset(value)
                .then((data) => {
                     setError(data?.error)
                     setSuccess(data?.success)
@@ -51,10 +48,10 @@ export const LoginForm = () => {
 
     return (
        <CardWrapper
-            headerLabel="おかえりなさい！"
-            backButtonLabel="新規登録はこちらから"
-            backButtonHref="/auth/register"
-            showSocial
+            headerLabel="パスワードをリセットしてください"
+            backButtonLabel="ログインへ戻る"
+            backButtonHref="/auth/login"
+            showSocial={false}
        >
             <Form {...form}>
                <form 
@@ -80,46 +77,15 @@ export const LoginForm = () => {
                                    </FormItem>     
                               )}
                          >
-
-                         </FormField>
-                         <FormField
-                              control={form.control}
-                              name="password"
-                              render={({ field }) => (
-                                   <FormItem>
-                                        <FormLabel>Password</FormLabel>
-                                        <FormControl>
-                                             <Input
-                                                  {...field}
-                                                  disabled={isPending}
-                                                  placeholder="**********"
-                                                  type="password" 
-                                             />
-                                        </FormControl>
-                                        <Button 
-                                             size={"sm"} 
-                                             variant={"link"}
-                                             asChild
-                                             className="px-0 font-normal"
-                                        >
-                                             <Link href="/auth/reset">
-                                                  パスワードを忘れた場合
-                                             </Link>
-                                        </Button>
-                                        <FormMessage />
-                                   </FormItem>     
-                              )}
-                         >
-
                          </FormField>
                     </div>
-                    <FormError message={error || urlError} />
+                    <FormError message={error} />
                     <FormSuccess message={success} />
                     <Button
                          type="submit"
                          className="w-full"
                     >
-                         ログイン
+                         確認メールを送信
                     </Button>
                </form>
             </Form>
