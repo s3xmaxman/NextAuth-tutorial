@@ -20,7 +20,7 @@ export const NewVerificationForm = () => {
         
         //  既に成功またはエラーメッセージが設定されている場合、関数を終了します。
         if (success || error) {
-            return
+            return null
         }
 
         //   トークンが存在しない場合、エラーメッセージを設定して関数を終了します。
@@ -51,6 +51,7 @@ export const NewVerificationForm = () => {
             headerLabel="認証が完了しました!"
             backButtonHref="/auth/login"
             backButtonLabel="ログインに戻る"
+            showSocial={false}
         >
             <div className="flex items-center w-full justify-center">
                 {!success && !error && (
