@@ -25,6 +25,7 @@ import Link from "next/link";
 export const LoginForm = () => {
      const searchParams = useSearchParams();
      const urlError = searchParams.get("error") === "OAuthAccountNotLinked" ? "別のプロバイダーで使用しているメールアドレスです" :""
+     const [showTwoFactor, setShowTwoFactor] = useState(false)
      const [error, setError] = useState<string | undefined>("")
      const [success, setSuccess] = useState<string | undefined>("")
      const [isPending, startTransition] = useTransition();
@@ -42,8 +43,22 @@ export const LoginForm = () => {
           startTransition(() => {
                Login(value)
                .then((data) => {
-                    setError(data?.error)
-                    setSuccess(data?.success)
+                   if(data?.error){
+                        form.reset()
+                        setError(data?.error)
+                   }
+
+                   if(data?.success){
+                        form.reset()
+                        setSuccess(data?.success)
+                   }
+
+                   if(data?.twoFactor){
+                        setShowTwoFactor(true)
+                   }
+               })
+               .catch((error) => {
+                    setError("Something went wrong")
                })
           })
      }
@@ -61,7 +76,28 @@ export const LoginForm = () => {
                     onSubmit={form.handleSubmit(onSubmit)}
                     className="space-y-6"
                >
-                    <div className="space-y-4">
+                 <div className="space-y-4">
+                    {showTwoFactor && (
+                         <FormField
+                              control={form.control}
+                              name="code"
+                              render={({ field }) => (
+                              <FormItem>
+                                   <FormLabel>2段階認証</FormLabel>
+                                   <FormControl>
+                                   <Input
+                                   {...field}
+                                   disabled={isPending}
+                                   placeholder="123456"
+                                   />
+                                   </FormControl>
+                                   <FormMessage />
+                              </FormItem>
+                              )}
+                         />
+                    )}
+                    {!showTwoFactor && (
+                         <>
                          <FormField
                               control={form.control}
                               name="email"
@@ -112,6 +148,8 @@ export const LoginForm = () => {
                          >
 
                          </FormField>
+                         </>
+                    )}
                     </div>
                     <FormError message={error || urlError} />
                     <FormSuccess message={success} />
@@ -119,7 +157,7 @@ export const LoginForm = () => {
                          type="submit"
                          className="w-full"
                     >
-                         ログイン
+                         {showTwoFactor ? "認証" : "ログイン"}
                     </Button>
                </form>
             </Form>
