@@ -63,7 +63,7 @@ export const UserInfo = ({
           <Badge 
             variant={user?.isTwoFactorEnabled ? "success" : "destructive"}
           >
-            {user?.isTwoFactorEnabled ? "ON" : "OFF"}
+            {user?.isTwoFactorEnabled  ? "ON" : "OFF"}
           </Badge>
         </div>
       </CardContent>
