@@ -10,8 +10,8 @@ import { getTwoFactorTokenByEmail } from '@/data/two-factor-token';
 export const generateTwoFactorToken = async(email: string) => {
     //  ランダムなトークンを生成する
     const token = crypto.randomInt(100_000,  1_000_000).toString();
-    //  トークンの有効期限を設定する（現在の時間から1時間後）
-    const expires = new Date(new Date().getTime() +  3600 *  1000);
+    //  トークンの有効期限を設定する（現在の時間から5分後）
+    const expires = new Date(new Date().getTime() +  5 * 60 *  1000);
 
     //  メールアドレスに関連する既存の二要素認証トークンを取得する
     const existingToken = await getTwoFactorTokenByEmail(email);
