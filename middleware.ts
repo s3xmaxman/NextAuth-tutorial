@@ -1,6 +1,6 @@
+import NextAuth from "next-auth";
 
-import  authConfig  from "@/auth.config"
-import NextAuth from "next-auth"
+import authConfig from "@/auth.config";
 import {
   DEFAULT_LOGIN_REDIRECT,
   apiAuthPrefix,
@@ -8,36 +8,62 @@ import {
   publicRoutes,
 } from "@/routes";
 
-const { auth } = NextAuth(authConfig)
+// NextAuthの設定を使用してauth関数を取得
+const { auth } = NextAuth(authConfig);
 
+//  ミドルウェア関数をエクスポート（リクエストに基づいて認証状態をチェック）
 export default auth((req) => {
-  const { nextUrl } = req
-  const isLoggedIn = !!req.auth
+  //  リクエストからnextUrlを取得
+  const { nextUrl } = req;
+  //  ユーザーがログインしているかどうかを確認
+  const isLoggedIn = !!req.auth;
 
-  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix)
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname)
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname)
+  // API認証ルートかどうかを判断
+  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
+  //  公開ルートかどうかを判断
+  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
+  // 認証ルートかどうかを判断
+  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
+  // API認証ルートの場合は何も返さない
   if (isApiAuthRoute) {
-    return 
+    return null;
   }
-  
-  if (isAuthRoute){
-    if(isLoggedIn){
+
+  // 認証ルートの場合
+  if (isAuthRoute) {
+    //  ユーザーがログインしている場合はデフォルトのログインリダイレクト先へリダイレクト
+    if (isLoggedIn) {
       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
     }
-    return 
+    //  それ以外の場合は何も返さない
+    return null
   }
 
-  if(!isLoggedIn && !isPublicRoute){
-    return Response.redirect(new URL("/auth/login", nextUrl))
+  //  ユーザーがログインしておらず、公開ルートでない場合
+  if (!isLoggedIn && !isPublicRoute) {
+    //  コールバックURLを作成
+    let callbackUrl = nextUrl.pathname;
+    if (nextUrl.search) {
+      callbackUrl += nextUrl.search;
+    }
+
+    //  コールバックURLをエンコード
+    const encodedCallbackUrl = encodeURIComponent(callbackUrl);
+
+    //  ログインページへリダイレクト（コールバックURLを付与）
+    return Response.redirect(new URL(
+      `/auth/login?callbackUrl=${encodedCallbackUrl}`,
+      nextUrl
+    ));
   }
 
-  return 
+  //  それ以外の場合は何も返さない
+  return null;
 })
 
-// Optionally, don't invoke Middleware on some paths
-// Read more: https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
+//  ミドルウェアを特定のパスで無効化する設定
 export const config = {
-    matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
+  //  マッチャーパターンを指定
+  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
 }

@@ -14,11 +14,11 @@ import { db } from "@/lib/db";
 import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
 
 
-export const Login = async(values: z.infer<typeof LoginSchema>) => {
+export const Login = async(values: z.infer<typeof LoginSchema>, callbackUrl?: string | null) => {
     //  フォームの値をLoginSchemaでバリデーション
     const validatedFields = LoginSchema.safeParse(values)
 
-    //  バリデーションに失敗した場合、エラ���メッセージを返す
+    //  バリデーションに失敗した場合、エラーメッセージを返す
     if (!validatedFields.success) {
         return { error:"パスワードまたはメールアドレスが無効です" }
     }
@@ -90,7 +90,7 @@ export const Login = async(values: z.infer<typeof LoginSchema>) => {
     
     // 資格情報によるサインインを試みる
     try {
-        await signIn("credentials", { email, password, redirectTo: DEFAULT_LOGIN_REDIRECT})
+        await signIn("credentials", { email, password, redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT})
     } catch (error) {
         // 認証エラーが発生した場合、適切なエラーメッセージを返す
         if (error instanceof AuthError) {

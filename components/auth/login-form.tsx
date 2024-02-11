@@ -25,6 +25,7 @@ import Link from "next/link";
 export const LoginForm = () => {
      const searchParams = useSearchParams();
      const urlError = searchParams.get("error") === "OAuthAccountNotLinked" ? "別のプロバイダーで使用しているメールアドレスです" :""
+     const callbackUrl = searchParams.get("callbackUrl")
      const [showTwoFactor, setShowTwoFactor] = useState(false)
      const [error, setError] = useState<string | undefined>("")
      const [success, setSuccess] = useState<string | undefined>("")
@@ -41,7 +42,7 @@ export const LoginForm = () => {
 
      const onSubmit = (value: z.infer<typeof LoginSchema>) => {
           startTransition(() => {
-               Login(value)
+               Login(value, callbackUrl)
                .then((data) => {
                    if(data?.error){
                         form.reset()
